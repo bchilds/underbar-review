@@ -172,26 +172,29 @@
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
-    var newCollection = collection.slice();
+    
     if (arguments.length < 3) {
-      
-      accumulator = collection[0];
-      newCollection = collection.slice(1);
+      var initializing = true;
     }
-    //new collection = [1,2]
+    
     iterator = iterator || _.identity;
     
-    _.each(newCollection, function(item) {
-      var testResult = iterator(accumulator, item);
-      if (testResult !== undefined) {
-        accumulator = testResult;
+    _.each(collection, function(item) {
+      if (initializing) {
+        accumulator = item;
+        initializing = false;
+      } else {
+        var testResult = iterator(accumulator, item);
+        if (testResult !== undefined) {
+          accumulator = testResult;
+        }
       }
     });
 
     return accumulator;
   };
 
-  // Determine if the array or object contains a given value (using `===`).
+  //Determine if the array or object contains a given value (using `===`).
   _.contains = function(collection, target) {
     // TIP: Many iteration problems can be most easily expressed in
     // terms of reduce(). Here's a freebie to demonstrate!
@@ -207,6 +210,19 @@
   // Determine whether all of the elements match a truth test.
   _.every = function(collection, iterator) {
     // TIP: Try re-using reduce() here.
+    //returns a true/false
+    //iterates across each elem in collection
+      //runs iterator on each element to get t/f
+      //if any of these results are false, result = false
+    return _.reduce(collection, function(accumulator, value) {
+      if (iterator(accumulator, value) === false) {
+        accumulator = false;
+      }
+    }, true);
+    //can reduce the collection to either t/f by setting an initial condition
+      //(accumulator) and returning t/f into accumulator
+  
+ 
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
@@ -235,11 +251,32 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    //return an object (obj)
+    //first argument is the object to be extended
+    //any other arguments passed in will have their key/value pairs added to obj
+    var argLength = arguments.length;
+    //iterate over all arguments
+    for (var i = 1; i < arguments.length; i++) {
+      _.each(arguments[i], function(val, key, collection) {
+        obj[key] = val;
+      });
+    }
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+
+    var argLength = arguments.length;
+    //iterate over all arguments
+    for (var i = 1; i < arguments.length; i++) {
+      _.each(arguments[i], function(val, key, collection) {
+        if (obj[key] === undefined) { obj[key] = val; }
+      });
+    }
+    return obj;
+
   };
 
 
@@ -283,6 +320,14 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+
+    var result = {};
+
+    return function() {
+      if (result[JSON.stringify(arguments)] !== undefined) { return result[JSON.stringify(arguments)]; }
+      result[JSON.stringify(arguments)] = func.apply(this, arguments);
+      return result[JSON.stringify(arguments)]; 
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -292,6 +337,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var extraArgs = Array.prototype.slice.call(arguments, 2);
+    setTimeout(function() {
+      func.apply(this, extraArgs);
+    }, wait);
   };
 
 
