@@ -214,9 +214,13 @@
     //iterates across each elem in collection
       //runs iterator on each element to get t/f
       //if any of these results are false, result = false
-    return _.reduce(collection, function(accumulator, value) {
-      if (iterator(accumulator, value) === false) {
-        accumulator = false;
+    iterator = iterator || _.identity;
+
+    return !!_.reduce(collection, function(accumulator, value) {
+      if (iterator(value) && accumulator) {
+        return true;
+      } else {
+        return false;
       }
     }, true);
     //can reduce the collection to either t/f by setting an initial condition
@@ -229,6 +233,15 @@
   // provided, provide a default one
   _.some = function(collection, iterator) {
     // TIP: There's a very clever way to re-use every() here.
+    iterator = iterator || _.identity;
+
+    return !!_.reduce(collection, function(accumulator, value) {
+      if (iterator(value) || accumulator) {
+        return true;
+      } else {
+        return false;
+      }
+    }, false);
   };
 
 
@@ -355,6 +368,26 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+
+    var newArray = array.slice();
+  
+    //decrement through newArray
+    // save current element in temp variable
+    // grab a Math.random from 0 - (i - 1). 
+    // place random number new array at i
+    // place saved variable in temp at the old index
+
+    for (var i = newArray.length - 1; i > 0; i--) {
+      var min = 0;
+      var max = Math.floor(i - 1);
+      var randIn = Math.floor(Math.random() * (max - min + 1)) + min;
+      var x = newArray[i];
+      newArray[i] = newArray[randIn];
+      newArray[randIn] = x;
+
+    } 
+    
+    return newArray;
   };
 
 
