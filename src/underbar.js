@@ -402,6 +402,38 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    // collection[functionOrKey].apply(this, args)
+    // iterate over collection
+      //for each iteration call the method at that index
+        // determine if that index contains a function or key
+        // if function, invoke...if key, get value and invoke 
+    if (Array.isArray(collection)) {
+      var newColl = [];
+      if (typeof functionOrKey === 'function') {
+        _.each(collection, function(value) {
+          newColl.push(functionOrKey.apply(value, args));
+        });
+      } else {
+        _.each(collection, function(value) {
+          //newColl.push(value[functionOrKey])(args);
+          newColl.push(value[functionOrKey].apply(value, args));
+        }); 
+      }
+    } else { 
+      var newColl = {}; 
+
+      if (typeof functionOrKey === 'function') {
+        _.each(collection, function(value, key) {
+          newColl[key] = functionOrKey.apply(value, args);
+        });
+      } else {
+        _.each(collection, function(value, key) {
+          newColl[key] = value[functionOrKey].apply(value, args);
+        }); 
+      }
+
+    }
+    return newColl;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -409,6 +441,7 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -417,6 +450,23 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    var args = Array.prototype.slice.call(arguments);
+    var output = []; //this is an array of array pairs
+    var maxLength = 0;
+    for (var i = 0; i < arguments.length; i++ ) {
+      if (arguments[i].length > maxLength) { maxLength = arguments[i].length; }
+    }
+
+    //we have max length
+    //we iterate maxLength - 1 number of times
+    for (var i = 0; i < maxLength; i++) {
+      var tempArr = [];
+      _.each(args, function(argArray) {
+        tempArr.push(argArray[i]);
+      });
+      output.push(tempArr);
+    }
+    return output;
   };
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
@@ -424,6 +474,23 @@
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    var finalArray = result || [];
+
+    if (Array.isArray(nestedArray)) {
+
+      for (var i = 0; i < nestedArray.length; i++) {
+        
+        if (!Array.isArray(nestedArray[i])) {
+          finalArray = finalArray.concat(nestedArray[i]);
+        } else {
+          finalArray = _.flatten(nestedArray[i], finalArray);
+        }
+
+      }
+    
+    }  
+
+    return finalArray;
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
